@@ -3,13 +3,18 @@ import { Header } from './components/layout/Header'
 import { NationalScoreboard } from './components/dashboard/NationalScoreboard'
 import { SectionsProgressBar } from './components/dashboard/SectionsProgressBar'
 import { IrreversibilityCard } from './components/dashboard/IrreversibilityCard'
+import { ResultsMap } from './components/maps/ResultsMap'
+import { RegionSelector } from './components/maps/RegionSelector'
+import { StateRankings } from './components/tables/StateRankings'
 import { TransparencyModal } from './components/common/TransparencyModal'
 import { useResults } from './hooks/useResults'
-import { AlertCircle, Clock, Info } from 'lucide-react'
+import { AlertCircle, Clock, Info, Map as MapIcon } from 'lucide-react'
 
 export default function App() {
   const { data, irreversibility, isRefreshing, error, lastSuccessTime, refetch } = useResults(5000)
   const [isTransparencyOpen, setIsTransparencyOpen] = useState(false)
+  const [selectedState, setSelectedState] = useState<string | null>(null)
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
 
   const isWaitingPublication = data?.status === 'waiting_publication'
 
@@ -26,7 +31,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 space-y-8">
         {/* Error notification if any */}
         {error && (
           <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3 text-red-400 text-xs">
@@ -85,6 +90,36 @@ export default function App() {
             assessment={irreversibility}
             remainingValidEstimate={data?.remaining_valid_votes_estimate || 0}
           />
+        </section>
+
+        {/* Map & Geographic Exploration */}
+        <section aria-label="Mapa Eleitoral Interativo" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapIcon className="w-5 h-5 text-red-500" />
+              <h2 className="text-base font-bold text-white">Mapa Eleitoral Interativo</h2>
+            </div>
+            {selectedState && (
+              <span className="text-xs bg-slate-800 px-3 py-1 rounded-full border border-slate-700 text-slate-200">
+                Estado focado: <strong className="text-white">{selectedState}</strong>
+              </span>
+            )}
+          </div>
+
+          <ResultsMap
+            selectedState={selectedState}
+            onSelectState={(uf) => setSelectedState(uf || null)}
+          />
+
+          <RegionSelector
+            selectedRegion={selectedRegion}
+            onSelectRegion={(reg) => setSelectedRegion(reg || null)}
+          />
+        </section>
+
+        {/* State Rankings */}
+        <section aria-label="Rankings">
+          <StateRankings />
         </section>
 
         {/* Editorial Disclaimer Box */}
