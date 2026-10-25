@@ -19,3 +19,4 @@ def test_metadata():
     data = response.json()
     assert data["project"] == "ApuraLive"
     assert "independente" in data["nature"]
+

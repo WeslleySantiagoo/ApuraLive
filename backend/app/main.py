@@ -38,3 +38,4 @@ async def get_metadata():
         "mode": "live",
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
+
