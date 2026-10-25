@@ -1,7 +1,7 @@
 from typing import Dict, Optional
 from app.schemas.election import CandidateInfo
 
-# Candidaturas e Identificação Visual Oficial
+4# Candidaturas e Identificação Visual Oficial
 # Lula: Vermelho #E53935
 # Flávio Bolsonaro: Azul #2563EB
 DEFAULT_CANDIDATE_CONFIGS: Dict[str, Dict[str, str]] = {

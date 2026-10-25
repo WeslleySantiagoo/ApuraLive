@@ -4,8 +4,9 @@ from typing import List
 
 class Settings(BaseSettings):
     TSE_ENV: str = "live"
-    TSE_BASE_URL: str = "https://resultados.tse.jus.br/oficial/ele2026"
-    TSE_ELECTION_CODE: str = "ele2026"
+    # Base URL do TSE (inclui ele2026/6258)
+    TSE_BASE_URL: str = "https://resultados.tse.jus.br/oficial/ele2026/6258"
+    TSE_ELECTION_CODE: str = "e006258"
     CACHE_TTL_NATIONAL: int = 3
     CACHE_TTL_STATE: int = 5
     CACHE_TTL_MUNICIPALITY: int = 10
@@ -22,4 +23,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-

@@ -41,22 +41,44 @@ class ResultsService:
             )
 
         # TSE EA20 official JSON structure:
-        # dg: date, hg: time, s: total sections, st: totalized sections, pst: % totalized
-        # vvc: valid votes, vb: blank votes, vn: null votes, a: abstention, e: electors
-        # cand: candidate array -> n: number, nm: name, v: votes, pvp: % valid votes, e: elected flag ('S')
+        # dg: date, hg: time
+        # s (dict or int): ts: total sections, st: totalized sections, pst: % totalized
+        # v (dict): tv: total votes, vvc: valid votes, vb: blank votes, vn: null votes
+        # e (dict): te: total electors, c: attendance, a: abstention
         source_date = raw_data.get("dg")
         source_time = raw_data.get("hg")
         source_ts = f"{source_date}T{source_time}" if source_date and source_time else None
 
-        sec_total = int(raw_data.get("s", 0) or 0)
-        sec_counted = int(raw_data.get("st", 0) or 0)
-        sec_pct = float(str(raw_data.get("pst", "0")).replace(",", ".") or 0.0)
+        # Sections handling (supports dict structure and legacy flat keys)
+        raw_s = raw_data.get("s", {})
+        if isinstance(raw_s, dict):
+            sec_total = int(raw_s.get("ts", 0) or 0)
+            sec_counted = int(raw_s.get("st", 0) or 0)
+            sec_pct = float(str(raw_s.get("pst", "0")).replace(",", ".") or 0.0)
+        else:
+            sec_total = int(raw_data.get("s", 0) or 0)
+            sec_counted = int(raw_data.get("st", 0) or 0)
+            sec_pct = float(str(raw_data.get("pst", "0")).replace(",", ".") or 0.0)
 
-        total_valid = int(raw_data.get("vvc", 0) or 0)
-        total_blank = int(raw_data.get("vb", 0) or 0)
-        total_null = int(raw_data.get("vn", 0) or 0)
-        abstention = int(raw_data.get("a", 0) or 0)
-        electors = int(raw_data.get("e", 0) or 0)
+        # Votes handling (supports dict structure and legacy flat keys)
+        raw_v = raw_data.get("v", {})
+        if isinstance(raw_v, dict):
+            total_valid = int(raw_v.get("vvc", 0) or raw_v.get("vv", 0) or 0)
+            total_blank = int(raw_v.get("vb", 0) or 0)
+            total_null = int(raw_v.get("vn", 0) or raw_v.get("tvn", 0) or 0)
+        else:
+            total_valid = int(raw_data.get("vvc", 0) or 0)
+            total_blank = int(raw_data.get("vb", 0) or 0)
+            total_null = int(raw_data.get("vn", 0) or 0)
+
+        # Electors & abstention handling
+        raw_e = raw_data.get("e", {})
+        if isinstance(raw_e, dict):
+            abstention = int(raw_e.get("a", 0) or 0)
+            electors = int(raw_e.get("te", 0) or 0)
+        else:
+            abstention = int(raw_data.get("a", 0) or 0)
+            electors = int(raw_data.get("e", 0) or 0)
 
         votes_summary = VotesSummary(
             valid=total_valid,
@@ -66,8 +88,25 @@ class ResultsService:
             total_electors=electors,
         )
 
-        candidates_raw = raw_data.get("cand", [])
+        # Extract candidates from either raw_data['cand'] or carg[0]->agr->par->cand
         candidates: List[CandidateResult] = []
+        candidates_raw: List[Dict[str, Any]] = []
+
+        if "carg" in raw_data and isinstance(raw_data["carg"], list) and len(raw_data["carg"]) > 0:
+            carg0 = raw_data["carg"][0]
+            for agr in carg0.get("agr", []):
+                for par in agr.get("par", []):
+                    for c in par.get("cand", []):
+                        # Normalize keys: vap -> v, pvap -> pvp, nmu -> nm
+                        candidates_raw.append({
+                            "n": c.get("n"),
+                            "nm": c.get("nmu") or c.get("nm"),
+                            "v": c.get("vap") or c.get("v"),
+                            "pvp": c.get("pvap") or c.get("pvp"),
+                            "e": c.get("e"),
+                        })
+        elif "cand" in raw_data:
+            candidates_raw = raw_data.get("cand", [])
 
         for idx, c in enumerate(candidates_raw):
             num = str(c.get("n", "")).strip()
@@ -94,7 +133,6 @@ class ResultsService:
         candidates.sort(key=lambda x: x.votes, reverse=True)
 
         # Upper bound calculation for remaining valid votes (R)
-        # Conservative bound: total electors minus current counted votes, or proportional to pending sections
         pending_sections = max(0, sec_total - sec_counted)
         if sec_total > 0 and sec_counted > 0:
             avg_valid_per_section = total_valid / sec_counted
@@ -104,12 +142,14 @@ class ResultsService:
         else:
             r_estimate = 0
 
+        status = "available" if (sec_counted > 0 or total_valid > 0) else "waiting_publication"
+
         return NormalizedElectionResult(
             scope=scope.upper(),
             scope_name=STATE_NAMES.get(scope.upper(), scope.upper()),
             updated_at=now_iso,
             source_updated_at=source_ts,
-            status="available",
+            status=status,
             total_valid_votes=total_valid,
             sections=SectionsProgress(total=sec_total, counted=sec_counted, percentage=sec_pct),
             votes_summary=votes_summary,
@@ -122,7 +162,7 @@ class ResultsService:
 
         async def fetch():
             # Official path for presidential results (EA20) in BR:
-            # /dados/br/br-c0001-e002026-u.json (where c0001 is Presidente, e002026 is election code)
+            # dados/br/br-c0001-e006258-u.json
             path = f"dados/br/br-c0001-{settings.TSE_ELECTION_CODE}-u.json"
             raw = await tse_client.get_json(path)
             return self._normalize_tse_ea20(raw, "BR")
@@ -134,6 +174,7 @@ class ResultsService:
         cache_key = f"results:state:{clean_uf}"
 
         async def fetch():
+            # dados/{uf}/{uf}-c0001-e006258-u.json
             path = f"dados/{clean_uf}/{clean_uf}-c0001-{settings.TSE_ELECTION_CODE}-u.json"
             raw = await tse_client.get_json(path)
             return self._normalize_tse_ea20(raw, uf.upper())
@@ -141,7 +182,6 @@ class ResultsService:
         return await memory_cache.get_or_set(cache_key, settings.CACHE_TTL_STATE, fetch)
 
     async def get_all_states_results(self) -> List[NormalizedElectionResult]:
-        # Collect results for all 27 Brazilian federation units
         ufs = [uf for uf in STATE_NAMES.keys() if uf != "ZZ"]
         results: List[NormalizedElectionResult] = []
         for uf in ufs:
@@ -220,4 +260,3 @@ class ResultsService:
 
 
 results_service = ResultsService()
-
