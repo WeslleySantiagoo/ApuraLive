@@ -1,0 +1,14 @@
+{
+  "name": "apuralive",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && ./backend/.venv/bin/uvicorn app.main:app --reload --port 8000",
+    "test:backend": "cd backend && PYTHONPATH=. ./.venv/bin/pytest tests",
+    "build:frontend": "cd frontend && npm run build"
+  }
+}
