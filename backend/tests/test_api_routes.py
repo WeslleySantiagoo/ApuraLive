@@ -11,14 +11,14 @@ def test_election_endpoints():
     assert data["year"] == 2026
     assert data["office"] == "Presidente"
     assert len(data["candidates"]) >= 2
-    # Check configured candidates neutral colors
+    # Check configured candidates colors
     lula = next((c for c in data["candidates"] if "Lula" in c["name"]), None)
     assert lula is not None
-    assert lula["color"] == "#F8FAFC"
+    assert lula["color"] == "#E53935"
 
     bolsonaro = next((c for c in data["candidates"] if "Bolsonaro" in c["name"]), None)
     assert bolsonaro is not None
-    assert bolsonaro["color"] == "#94A3B8"
+    assert bolsonaro["color"] == "#2563EB"
 
 
 def test_results_endpoints():

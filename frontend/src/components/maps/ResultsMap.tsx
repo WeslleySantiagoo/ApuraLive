@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { MapPin, ZoomIn, ZoomOut, RotateCcw, Eye } from 'lucide-react'
+import { MapPin, ZoomIn, ZoomOut, RotateCcw, Eye, RefreshCw } from 'lucide-react'
 
 interface ResultsMapProps {
   statesResults?: Record<string, any>
@@ -12,19 +12,23 @@ interface ResultsMapProps {
 export function ResultsMap({ statesResults: _statesResults, onSelectState, selectedState }: ResultsMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<maplibregl.Map | null>(null)
+  const isLoadedRef = useRef(false)
   const [hoveredState, setHoveredState] = useState<any | null>(null)
   const [highContrast, setHighContrast] = useState(false)
+  const [isManualUpdating, setIsManualUpdating] = useState(false)
 
+  // Fly to selected state if updated without recreating the map
   useEffect(() => {
-    if (selectedState && map.current) {
+    if (selectedState && map.current && isLoadedRef.current) {
       // MapLibre animation for focused state
     }
   }, [selectedState])
 
+  // Initialize MapLibre ONCE on mount with empty dependency array
   useEffect(() => {
-    if (!mapContainer.current) return
+    if (!mapContainer.current || map.current) return
 
-    map.current = new maplibregl.Map({
+    const mapInstance = new maplibregl.Map({
       container: mapContainer.current,
       style: {
         version: 8,
@@ -46,71 +50,95 @@ export function ResultsMap({ statesResults: _statesResults, onSelectState, selec
       attributionControl: false,
     })
 
-    map.current.on('load', async () => {
-      if (!map.current) return
+    map.current = mapInstance
 
+    mapInstance.on('load', async () => {
+      isLoadedRef.current = true
       try {
         const resp = await fetch('/maps/brazil-states.json')
         const geojsonData = await resp.json()
 
-        map.current.addSource('brazil-states', {
-          type: 'geojson',
-          data: geojsonData,
-        })
+        if (!mapInstance.getSource('brazil-states')) {
+          mapInstance.addSource('brazil-states', {
+            type: 'geojson',
+            data: geojsonData,
+          })
 
-        // Base neutral fill layer for states
-        map.current.addLayer({
-          id: 'states-fill',
-          type: 'fill',
-          source: 'brazil-states',
-          paint: {
-            'fill-color': '#18181b',
-            'fill-opacity': 0.85,
-          },
-        })
+          // Base fill layer for states
+          mapInstance.addLayer({
+            id: 'states-fill',
+            type: 'fill',
+            source: 'brazil-states',
+            paint: {
+              'fill-color': '#18181b',
+              'fill-opacity': 0.85,
+            },
+          })
 
-        // Stroke borders
-        map.current.addLayer({
-          id: 'states-borders',
-          type: 'line',
-          source: 'brazil-states',
-          paint: {
-            'line-color': '#3f3f46',
-            'line-width': 1.2,
-          },
-        })
+          // Stroke borders
+          mapInstance.addLayer({
+            id: 'states-borders',
+            type: 'line',
+            source: 'brazil-states',
+            paint: {
+              'line-color': '#3f3f46',
+              'line-width': 1.2,
+            },
+          })
 
-        // Hover effect
-        map.current.on('mousemove', 'states-fill', (e) => {
-          if (e.features && e.features.length > 0) {
-            const feat = e.features[0]
-            const uf = feat.properties?.sigla
-            const nome = feat.properties?.nome
-            setHoveredState({ uf, nome, x: e.point.x, y: e.point.y })
-            if (map.current) map.current.getCanvas().style.cursor = 'pointer'
-          }
-        })
+          // Hover effect
+          mapInstance.on('mousemove', 'states-fill', (e) => {
+            if (e.features && e.features.length > 0) {
+              const feat = e.features[0]
+              const uf = feat.properties?.sigla
+              const nome = feat.properties?.nome
+              setHoveredState({ uf, nome, x: e.point.x, y: e.point.y })
+              mapInstance.getCanvas().style.cursor = 'pointer'
+            }
+          })
 
-        map.current.on('mouseleave', 'states-fill', () => {
-          setHoveredState(null)
-          if (map.current) map.current.getCanvas().style.cursor = ''
-        })
+          mapInstance.on('mouseleave', 'states-fill', () => {
+            setHoveredState(null)
+            mapInstance.getCanvas().style.cursor = ''
+          })
 
-        map.current.on('click', 'states-fill', (e) => {
-          if (e.features && e.features.length > 0) {
-            const uf = e.features[0].properties?.sigla
-            if (uf && onSelectState) onSelectState(uf)
-          }
-        })
+          mapInstance.on('click', 'states-fill', (e) => {
+            if (e.features && e.features.length > 0) {
+              const uf = e.features[0].properties?.sigla
+              if (uf && onSelectState) onSelectState(uf)
+            }
+          })
+        }
       } catch (err) {
         console.error('Falha ao carregar malha dos estados:', err)
       }
     })
 
     return () => {
-      map.current?.remove()
+      mapInstance.remove()
+      map.current = null
+      isLoadedRef.current = false
     }
-  }, [onSelectState])
+  }, []) // Empty dependency array: NEVER resets map automatically on parent re-renders
+
+  // Manual update function
+  const handleManualRefresh = useCallback(async () => {
+    setIsManualUpdating(true)
+    try {
+      if (map.current && isLoadedRef.current) {
+        const resp = await fetch('/maps/brazil-states.json')
+        const geojsonData = await resp.json()
+        const source = map.current.getSource('brazil-states') as maplibregl.GeoJSONSource
+        if (source) {
+          source.setData(geojsonData)
+        }
+      }
+    } catch (e) {
+      console.error('Erro ao atualizar mapa manualmente:', e)
+    } finally {
+      setTimeout(() => setIsManualUpdating(false), 500)
+    }
+  }, [])
 
   const handleZoomIn = () => map.current?.zoomIn()
   const handleZoomOut = () => map.current?.zoomOut()
@@ -126,6 +154,14 @@ export function ResultsMap({ statesResults: _statesResults, onSelectState, selec
 
       {/* Floating Toolbar Controls */}
       <div className="absolute top-4 right-4 flex flex-col gap-1.5 z-10 bg-zinc-900/90 backdrop-blur p-1 rounded-xl border border-zinc-800 shadow-lg">
+        <button
+          onClick={handleManualRefresh}
+          disabled={isManualUpdating}
+          className="p-2 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-lg transition"
+          title="Atualizar dados do mapa manualmente"
+        >
+          <RefreshCw className={`w-4 h-4 ${isManualUpdating ? 'animate-spin text-zinc-100' : ''}`} />
+        </button>
         <button
           onClick={handleZoomIn}
           className="p-2 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-lg transition"
@@ -158,16 +194,21 @@ export function ResultsMap({ statesResults: _statesResults, onSelectState, selec
         </button>
       </div>
 
-      {/* Floating Legend Imparcial */}
+      {/* Floating Legend com as cores oficiais solicitadas */}
       <div className="absolute bottom-4 left-4 z-10 bg-zinc-900/95 backdrop-blur p-4 rounded-xl border border-zinc-800 shadow-xl text-xs space-y-2">
-        <span className="font-semibold text-zinc-300 block">Identificação por Estado</span>
+        <div className="flex items-center justify-between gap-4">
+          <span className="font-semibold text-zinc-200">Liderança por Estado</span>
+          <span className="text-[10px] text-zinc-400 border border-zinc-700/60 px-1.5 py-0.5 rounded">
+            Atualização Manual
+          </span>
+        </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-3.5 rounded-md bg-zinc-100 border border-zinc-300"></span>
+            <span className="w-3.5 h-3.5 rounded-md bg-[#E53935] shadow-sm"></span>
             <span className="text-zinc-300 font-medium">Lula (13)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-3.5 rounded-md bg-zinc-400 border border-zinc-500"></span>
+            <span className="w-3.5 h-3.5 rounded-md bg-[#2563EB] shadow-sm"></span>
             <span className="text-zinc-300 font-medium">Flávio Bolsonaro (22)</span>
           </div>
           <div className="flex items-center gap-1.5">

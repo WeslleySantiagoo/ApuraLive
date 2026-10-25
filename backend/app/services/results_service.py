@@ -10,7 +10,7 @@ from app.schemas.results import (
     SectionsProgress,
     VotesSummary,
 )
-from app.services.candidate_service import resolve_candidate_color
+from app.services.candidate_service import resolve_candidate_color, resolve_candidate_photo
 from app.services.geography_service import STATE_NAMES, get_region_for_state
 from app.services.tse_client import tse_client
 
@@ -77,6 +77,7 @@ class ResultsService:
             is_elected = str(c.get("e", "")).upper() == "S"
 
             color = resolve_candidate_color(num, name, idx)
+            photo_url = resolve_candidate_photo(num, name)
             candidates.append(
                 CandidateResult(
                     id=num,
@@ -86,7 +87,7 @@ class ResultsService:
                     votes=votes,
                     percentage=pct_val,
                     is_elected=is_elected,
-                    photo_url=None,
+                    photo_url=photo_url,
                 )
             )
 

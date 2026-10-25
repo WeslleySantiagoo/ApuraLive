@@ -28,6 +28,14 @@ export function ScenarioSimulator({
   const cand1 = candidates[0]
   const cand2 = candidates[1]
 
+  const isLula1 = cand1.number === '13' || cand1.name.toUpperCase().includes('LULA')
+  const cand1Color = isLula1 ? '#E53935' : '#2563EB'
+  const cand1Photo = isLula1 ? '/candidates/lula.jpg' : '/candidates/flavio-bolsonaro.jpg'
+
+  const isLula2 = cand2.number === '13' || cand2.name.toUpperCase().includes('LULA')
+  const cand2Color = isLula2 ? '#E53935' : '#2563EB'
+  const cand2Photo = isLula2 ? '/candidates/lula.jpg' : '/candidates/flavio-bolsonaro.jpg'
+
   const cand1AddedVotes = Math.round(remainingValidVotes * (sliderVal / 100))
   const cand2AddedVotes = remainingValidVotes - cand1AddedVotes
 
@@ -56,11 +64,11 @@ export function ScenarioSimulator({
         Simule como o placar final ficaria caso os <strong className="text-zinc-100 font-mono">{formatNumber(remainingValidVotes)}</strong> votos válidos restantes fossem distribuídos na proporção abaixo:
       </p>
 
-      {/* Interactive Slider Neutro */}
+      {/* Interactive Slider */}
       <div className="space-y-3 bg-zinc-950/80 p-5 rounded-xl border border-zinc-800">
-        <div className="flex justify-between items-center text-xs font-semibold text-zinc-200">
-          <span>{cand1.name}: {sliderVal}% dos restantes</span>
-          <span>{cand2.name}: {100 - sliderVal}% dos restantes</span>
+        <div className="flex justify-between items-center text-xs font-semibold">
+          <span style={{ color: cand1Color }}>{cand1.name}: {sliderVal}% dos restantes</span>
+          <span style={{ color: cand2Color }}>{cand2.name}: {100 - sliderVal}% dos restantes</span>
         </div>
 
         <input
@@ -86,22 +94,34 @@ export function ScenarioSimulator({
         </div>
       </div>
 
-      {/* Projected Result Cards Monocromáticos */}
+      {/* Projected Result Cards com foto dos candidatos e cor de destaque */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
-          <span className="text-[11px] font-medium text-zinc-400 block">{cand1.name} (Projeção)</span>
+        <div
+          className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2 border-l-4"
+          style={{ borderLeftColor: cand1Color }}
+        >
+          <div className="flex items-center gap-2.5">
+            <img src={cand1Photo} alt={cand1.name} className="w-8 h-8 rounded-full object-cover border border-zinc-700" />
+            <span className="text-[12px] font-semibold text-zinc-200 block">{cand1.name} (Projeção)</span>
+          </div>
           <div className="flex items-baseline justify-between">
-            <strong className="text-2xl font-bold font-mono text-zinc-100">
+            <strong className="text-2xl font-bold font-mono" style={{ color: cand1Color }}>
               {formatPercentage(cand1ProjectedPct)}
             </strong>
             <span className="text-xs text-zinc-400 font-mono">{formatNumber(cand1ProjectedTotal)} votos</span>
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
-          <span className="text-[11px] font-medium text-zinc-400 block">{cand2.name} (Projeção)</span>
+        <div
+          className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2 border-l-4"
+          style={{ borderLeftColor: cand2Color }}
+        >
+          <div className="flex items-center gap-2.5">
+            <img src={cand2Photo} alt={cand2.name} className="w-8 h-8 rounded-full object-cover border border-zinc-700" />
+            <span className="text-[12px] font-semibold text-zinc-200 block">{cand2.name} (Projeção)</span>
+          </div>
           <div className="flex items-baseline justify-between">
-            <strong className="text-2xl font-bold font-mono text-zinc-300">
+            <strong className="text-2xl font-bold font-mono" style={{ color: cand2Color }}>
               {formatPercentage(cand2ProjectedPct)}
             </strong>
             <span className="text-xs text-zinc-400 font-mono">{formatNumber(cand2ProjectedTotal)} votos</span>
