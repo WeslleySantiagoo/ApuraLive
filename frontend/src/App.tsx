@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Header } from './components/layout/Header'
 import { NationalScoreboard } from './components/dashboard/NationalScoreboard'
 import { SectionsProgressBar } from './components/dashboard/SectionsProgressBar'
@@ -10,13 +10,36 @@ import { StateRankings } from './components/tables/StateRankings'
 import { ExportDialog } from './components/common/ExportDialog'
 import { TransparencyModal } from './components/common/TransparencyModal'
 import { useResults } from './hooks/useResults'
+import { fetchStateResults } from './services/api'
+import { NormalizedElectionResult } from './types/results'
 import { AlertCircle, Clock, Info, Map as MapIcon } from 'lucide-react'
 
 export default function App() {
   const { data, irreversibility, isRefreshing, error, lastSuccessTime, refetch } = useResults(5000)
+  const [statesData, setStatesData] = useState<NormalizedElectionResult[]>([])
   const [isTransparencyOpen, setIsTransparencyOpen] = useState(false)
   const [selectedState, setSelectedState] = useState<string | null>(null)
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
+
+  // Polling for state results so map stays up-to-date automatically
+  useEffect(() => {
+    const loadStates = () => {
+      fetchStateResults()
+        .then((res) => {
+          if (res && res.length > 0) setStatesData(res)
+        })
+        .catch(() => {})
+    }
+
+    loadStates()
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        loadStates()
+      }
+    }, 10000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   const isWaitingPublication = data?.status === 'waiting_publication'
 
@@ -112,12 +135,13 @@ export default function App() {
             </div>
             {selectedState && (
               <span className="text-xs bg-zinc-800 px-3 py-1 rounded-full border border-zinc-700 text-zinc-200">
-                Estado focado: <strong className="text-white">{selectedState}</strong>
+                Estado selecionado: <strong className="text-white">{selectedState}</strong>
               </span>
             )}
           </div>
 
           <ResultsMap
+            statesResults={statesData}
             selectedState={selectedState}
             onSelectState={(uf) => setSelectedState(uf || null)}
           />
