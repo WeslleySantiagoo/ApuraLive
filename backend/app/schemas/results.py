@@ -38,3 +38,4 @@ class NormalizedElectionResult(BaseModel):
     votes_summary: Optional[VotesSummary] = None
     candidates: List[CandidateResult] = Field(default_factory=list)
     remaining_valid_votes_estimate: int = 0
+

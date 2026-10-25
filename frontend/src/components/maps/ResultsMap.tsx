@@ -15,7 +15,6 @@ export function ResultsMap({ statesResults: _statesResults, onSelectState, selec
   const [hoveredState, setHoveredState] = useState<any | null>(null)
   const [highContrast, setHighContrast] = useState(false)
 
-  // Fly to selected state if updated
   useEffect(() => {
     if (selectedState && map.current) {
       // MapLibre animation for focused state
@@ -35,7 +34,7 @@ export function ResultsMap({ statesResults: _statesResults, onSelectState, selec
             id: 'background',
             type: 'background',
             paint: {
-              'background-color': '#030712',
+              'background-color': '#09090b',
             },
           },
         ],
@@ -59,14 +58,14 @@ export function ResultsMap({ statesResults: _statesResults, onSelectState, selec
           data: geojsonData,
         })
 
-        // Base fill layer for states
+        // Base neutral fill layer for states
         map.current.addLayer({
           id: 'states-fill',
           type: 'fill',
           source: 'brazil-states',
           paint: {
-            'fill-color': '#1e293b',
-            'fill-opacity': 0.75,
+            'fill-color': '#18181b',
+            'fill-opacity': 0.85,
           },
         })
 
@@ -76,7 +75,7 @@ export function ResultsMap({ statesResults: _statesResults, onSelectState, selec
           type: 'line',
           source: 'brazil-states',
           paint: {
-            'line-color': '#475569',
+            'line-color': '#3f3f46',
             'line-width': 1.2,
           },
         })
@@ -121,29 +120,29 @@ export function ResultsMap({ statesResults: _statesResults, onSelectState, selec
   }
 
   return (
-    <div className="relative w-full h-[450px] md:h-[520px] rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl">
+    <div className="relative w-full h-[450px] md:h-[520px] rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-950 shadow-2xl">
       {/* Map canvas */}
       <div ref={mapContainer} className="w-full h-full" />
 
       {/* Floating Toolbar Controls */}
-      <div className="absolute top-4 right-4 flex flex-col gap-1.5 z-10 bg-slate-900/90 backdrop-blur p-1 rounded-xl border border-slate-700/80 shadow-lg">
+      <div className="absolute top-4 right-4 flex flex-col gap-1.5 z-10 bg-zinc-900/90 backdrop-blur p-1 rounded-xl border border-zinc-800 shadow-lg">
         <button
           onClick={handleZoomIn}
-          className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition"
+          className="p-2 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-lg transition"
           title="Aproximar zoom"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={handleZoomOut}
-          className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition"
+          className="p-2 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-lg transition"
           title="Afastar zoom"
         >
           <ZoomOut className="w-4 h-4" />
         </button>
         <button
           onClick={handleReset}
-          className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition"
+          className="p-2 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-lg transition"
           title="Resetar visualização"
         >
           <RotateCcw className="w-4 h-4" />
@@ -151,7 +150,7 @@ export function ResultsMap({ statesResults: _statesResults, onSelectState, selec
         <button
           onClick={() => setHighContrast(!highContrast)}
           className={`p-2 rounded-lg transition ${
-            highContrast ? 'text-amber-400 bg-slate-800' : 'text-slate-400 hover:text-white'
+            highContrast ? 'text-zinc-100 bg-zinc-800' : 'text-zinc-400 hover:text-white'
           }`}
           title="Modo alto contraste / acessibilidade"
         >
@@ -159,21 +158,21 @@ export function ResultsMap({ statesResults: _statesResults, onSelectState, selec
         </button>
       </div>
 
-      {/* Floating Legend */}
-      <div className="absolute bottom-4 left-4 z-10 bg-slate-900/90 backdrop-blur p-3.5 rounded-xl border border-slate-800 shadow-lg text-xs space-y-2">
-        <span className="font-semibold text-slate-300 block">Liderança por Estado</span>
+      {/* Floating Legend Imparcial */}
+      <div className="absolute bottom-4 left-4 z-10 bg-zinc-900/95 backdrop-blur p-4 rounded-xl border border-zinc-800 shadow-xl text-xs space-y-2">
+        <span className="font-semibold text-zinc-300 block">Identificação por Estado</span>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-3.5 rounded-md bg-[#E53935] shadow-sm"></span>
-            <span className="text-slate-300 font-medium">Lula (13)</span>
+            <span className="w-3.5 h-3.5 rounded-md bg-zinc-100 border border-zinc-300"></span>
+            <span className="text-zinc-300 font-medium">Lula (13)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-3.5 rounded-md bg-[#2563EB] shadow-sm"></span>
-            <span className="text-slate-300 font-medium">Flávio Bolsonaro (22)</span>
+            <span className="w-3.5 h-3.5 rounded-md bg-zinc-400 border border-zinc-500"></span>
+            <span className="text-zinc-300 font-medium">Flávio Bolsonaro (22)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-3.5 rounded-md bg-[#334155] border border-slate-600"></span>
-            <span className="text-slate-400">Aguardando</span>
+            <span className="w-3.5 h-3.5 rounded-md bg-zinc-800 border border-zinc-700"></span>
+            <span className="text-zinc-500">Aguardando</span>
           </div>
         </div>
       </div>
@@ -181,16 +180,16 @@ export function ResultsMap({ statesResults: _statesResults, onSelectState, selec
       {/* Hover Tooltip */}
       {hoveredState && (
         <div
-          className="absolute z-20 pointer-events-none bg-slate-900/95 border border-slate-700 p-2.5 rounded-lg shadow-xl text-xs text-white -translate-x-1/2 -translate-y-full mb-3"
+          className="absolute z-20 pointer-events-none bg-zinc-900/95 border border-zinc-700 p-3 rounded-lg shadow-2xl text-xs text-white -translate-x-1/2 -translate-y-full mb-3"
           style={{ left: hoveredState.x, top: hoveredState.y }}
         >
           <div className="flex items-center gap-1.5 font-bold">
-            <MapPin className="w-3.5 h-3.5 text-red-500" />
+            <MapPin className="w-3.5 h-3.5 text-zinc-300" />
             <span>
               {hoveredState.nome} ({hoveredState.uf})
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-1">
+          <p className="text-[11px] text-zinc-400 mt-1">
             Clique para ver detalhes e municípios deste estado
           </p>
         </div>

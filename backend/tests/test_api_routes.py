@@ -11,14 +11,14 @@ def test_election_endpoints():
     assert data["year"] == 2026
     assert data["office"] == "Presidente"
     assert len(data["candidates"]) >= 2
-    # Check configured candidates colors
+    # Check configured candidates neutral colors
     lula = next((c for c in data["candidates"] if "Lula" in c["name"]), None)
     assert lula is not None
-    assert lula["color"] == "#E53935"
+    assert lula["color"] == "#F8FAFC"
 
     bolsonaro = next((c for c in data["candidates"] if "Bolsonaro" in c["name"]), None)
     assert bolsonaro is not None
-    assert bolsonaro["color"] == "#2563EB"
+    assert bolsonaro["color"] == "#94A3B8"
 
 
 def test_results_endpoints():
@@ -36,3 +36,4 @@ def test_irreversibility_endpoint():
     data = res.json()
     assert "is_mathematically_irreversible" in data
     assert "summary_text" in data
+

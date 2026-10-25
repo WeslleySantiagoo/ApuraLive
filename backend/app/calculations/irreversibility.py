@@ -110,3 +110,4 @@ def evaluate_irreversibility(
             threshold_needed=threshold,
             summary_text=summary,
         )
+

@@ -1,18 +1,19 @@
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 from app.schemas.election import CandidateInfo
 
-# Default expected project candidates configuration
+# Candidaturas e Paleta Neutra e Imparcial (Preto, Branco, Prata, Platina, Grafite)
+# Sem vermelho, sem azul, sem verde, sem amarelo
 DEFAULT_CANDIDATE_CONFIGS: Dict[str, Dict[str, str]] = {
     "13": {
         "expected_name_contains": "LULA",
-        "color": "#E53935",
+        "color": "#F8FAFC",  # Branco Puro / Platina
         "name": "Luiz Inácio Lula da Silva",
         "ballot_name": "Lula",
         "party": "PT",
     },
     "22": {
         "expected_name_contains": "BOLSONARO",
-        "color": "#2563EB",
+        "color": "#94A3B8",  # Prata Metálico / Grafite Claro
         "name": "Flávio Bolsonaro",
         "ballot_name": "Flávio Bolsonaro",
         "party": "PL",
@@ -20,17 +21,16 @@ DEFAULT_CANDIDATE_CONFIGS: Dict[str, Dict[str, str]] = {
 }
 
 FALLBACK_PALETTE = [
-    "#10B981",  # Emerald
-    "#F59E0B",  # Amber
-    "#8B5CF6",  # Purple
-    "#06B6D4",  # Cyan
-    "#EC4899",  # Pink
-    "#64748B",  # Slate
+    "#CBD5E1",  # Slate 300
+    "#64748B",  # Slate 500
+    "#E2E8F0",  # Slate 200
+    "#475569",  # Slate 600
+    "#94A3B8",  # Slate 400
 ]
 
 
 def resolve_candidate_color(number: str, name: str, fallback_index: int = 0) -> str:
-    """Matches candidate to configured colors if verified; otherwise assigns distinct palette color."""
+    """Retorna cor elegante e neutra para identificação imparcial."""
     num_str = str(number).strip()
     norm_name = name.upper()
 

@@ -31,3 +31,4 @@ async def get_regions_result():
 @router.get("/municipality/{code}", response_model=NormalizedElectionResult)
 async def get_municipality_result(code: str, state: str = Query(..., min_length=2, max_length=2)):
     return await results_service.get_municipality_results(state, code)
+

@@ -74,3 +74,4 @@ export function useResults(pollIntervalMs: number = 6000): UseResultsState {
     refetch: () => loadData(true),
   }
 }
+

@@ -47,3 +47,4 @@ def get_region_for_state(uf: str) -> Optional[str]:
         if uf_upper in states:
             return region
     return "Outros"
+

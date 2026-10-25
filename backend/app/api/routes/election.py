@@ -42,3 +42,4 @@ async def get_election_config():
 async def get_candidates():
     cfg = await get_election_config()
     return {"candidates": cfg.candidates}
+

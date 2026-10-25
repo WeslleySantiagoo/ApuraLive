@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CandidateResult } from '../../types/results'
 import { formatNumber, formatPercentage } from '../../utils/formatters'
-import { Sliders, AlertTriangle, RotateCcw } from 'lucide-react'
+import { Sliders, RotateCcw, Info } from 'lucide-react'
 
 interface ScenarioSimulatorProps {
   candidates: CandidateResult[]
@@ -14,13 +14,12 @@ export function ScenarioSimulator({
   currentValidVotes,
   remainingValidVotes,
 }: ScenarioSimulatorProps) {
-  // Candidate 1 percentage of remaining votes (Candidate 2 gets the rest)
   const [sliderVal, setSliderVal] = useState<number>(50)
 
   if (!candidates || candidates.length < 2 || remainingValidVotes <= 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 text-center text-xs text-slate-400">
-        <Sliders className="w-5 h-5 text-slate-500 mx-auto mb-2" />
+      <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl p-5 text-center text-xs text-zinc-400">
+        <Sliders className="w-5 h-5 text-zinc-500 mx-auto mb-2" />
         <p>O simulador de cenários fica disponível assim que houver votos válidos restantes estimados durante a apuração.</p>
       </div>
     )
@@ -40,28 +39,28 @@ export function ScenarioSimulator({
   const cand2ProjectedPct = totalProjected > 0 ? (cand2ProjectedTotal / totalProjected) * 100 : 0
 
   return (
-    <div className="bg-slate-900/70 border border-amber-500/30 rounded-2xl p-5 space-y-5 relative overflow-hidden">
-      {/* Warning banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-800">
+    <div className="bg-zinc-900/60 border border-zinc-700/80 rounded-2xl p-6 space-y-5">
+      {/* Impartial title & badge */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-zinc-800">
         <div className="flex items-center gap-2">
-          <Sliders className="w-5 h-5 text-amber-400" />
-          <h3 className="text-sm font-bold text-white">Simulador de Cenários Possíveis</h3>
+          <Sliders className="w-5 h-5 text-zinc-300" />
+          <h3 className="text-sm font-bold text-zinc-100">Simulador de Cenários Possíveis</h3>
         </div>
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] font-bold tracking-wider uppercase">
-          <AlertTriangle className="w-3.5 h-3.5" />
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700 text-[10px] font-mono tracking-wider uppercase">
+          <Info className="w-3.5 h-3.5 text-zinc-400" />
           Simulação Hipotética — Não é Resultado Oficial
         </span>
       </div>
 
-      <p className="text-xs text-slate-300">
-        Simule como o placar final ficaria caso os <strong className="text-white">{formatNumber(remainingValidVotes)}</strong> votos válidos restantes fossem distribuídos na proporção abaixo:
+      <p className="text-xs text-zinc-300">
+        Simule como o placar final ficaria caso os <strong className="text-zinc-100 font-mono">{formatNumber(remainingValidVotes)}</strong> votos válidos restantes fossem distribuídos na proporção abaixo:
       </p>
 
-      {/* Interactive Slider */}
-      <div className="space-y-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
-        <div className="flex justify-between items-center text-xs font-semibold">
-          <span style={{ color: cand1.color }}>{cand1.name}: {sliderVal}% dos restantes</span>
-          <span style={{ color: cand2.color }}>{cand2.name}: {100 - sliderVal}% dos restantes</span>
+      {/* Interactive Slider Neutro */}
+      <div className="space-y-3 bg-zinc-950/80 p-5 rounded-xl border border-zinc-800">
+        <div className="flex justify-between items-center text-xs font-semibold text-zinc-200">
+          <span>{cand1.name}: {sliderVal}% dos restantes</span>
+          <span>{cand2.name}: {100 - sliderVal}% dos restantes</span>
         </div>
 
         <input
@@ -70,42 +69,42 @@ export function ScenarioSimulator({
           max={100}
           value={sliderVal}
           onChange={(e) => setSliderVal(Number(e.target.value))}
-          className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
+          className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-200"
         />
 
-        <div className="flex justify-between items-center text-[11px] text-slate-400 pt-1">
-          <span>+{formatNumber(cand1AddedVotes)} votos simulados</span>
+        <div className="flex justify-between items-center text-[11px] text-zinc-400 pt-1 font-mono">
+          <span>+{formatNumber(cand1AddedVotes)} votos</span>
           <button
             onClick={() => setSliderVal(50)}
-            className="flex items-center gap-1 text-slate-400 hover:text-white transition"
+            className="flex items-center gap-1 text-zinc-400 hover:text-white transition font-sans"
             title="Resetar para 50% / 50%"
           >
             <RotateCcw className="w-3 h-3" />
             50% / 50%
           </button>
-          <span>+{formatNumber(cand2AddedVotes)} votos simulados</span>
+          <span>+{formatNumber(cand2AddedVotes)} votos</span>
         </div>
       </div>
 
-      {/* Projected Result Cards */}
+      {/* Projected Result Cards Monocromáticos */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
-          <span className="text-[11px] font-semibold text-slate-400 block">{cand1.name} (Projeção)</span>
+        <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
+          <span className="text-[11px] font-medium text-zinc-400 block">{cand1.name} (Projeção)</span>
           <div className="flex items-baseline justify-between">
-            <strong className="text-2xl font-bold" style={{ color: cand1.color }}>
+            <strong className="text-2xl font-bold font-mono text-zinc-100">
               {formatPercentage(cand1ProjectedPct)}
             </strong>
-            <span className="text-xs text-slate-300 font-medium">{formatNumber(cand1ProjectedTotal)} votos</span>
+            <span className="text-xs text-zinc-400 font-mono">{formatNumber(cand1ProjectedTotal)} votos</span>
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
-          <span className="text-[11px] font-semibold text-slate-400 block">{cand2.name} (Projeção)</span>
+        <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
+          <span className="text-[11px] font-medium text-zinc-400 block">{cand2.name} (Projeção)</span>
           <div className="flex items-baseline justify-between">
-            <strong className="text-2xl font-bold" style={{ color: cand2.color }}>
+            <strong className="text-2xl font-bold font-mono text-zinc-300">
               {formatPercentage(cand2ProjectedPct)}
             </strong>
-            <span className="text-xs text-slate-300 font-medium">{formatNumber(cand2ProjectedTotal)} votos</span>
+            <span className="text-xs text-zinc-400 font-mono">{formatNumber(cand2ProjectedTotal)} votos</span>
           </div>
         </div>
       </div>

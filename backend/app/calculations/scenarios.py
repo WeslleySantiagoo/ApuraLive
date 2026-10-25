@@ -36,3 +36,4 @@ def simulate_scenario(
         "remaining_valid_votes_distributed": remaining_valid_votes,
         "candidates": results,
     }
+

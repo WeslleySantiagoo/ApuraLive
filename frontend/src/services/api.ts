@@ -41,3 +41,4 @@ export async function fetchRankings(): Promise<any[]> {
   }
   return res.json()
 }
+

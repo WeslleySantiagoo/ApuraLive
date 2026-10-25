@@ -72,3 +72,4 @@ async def get_state_rankings():
 
     rankings.sort(key=lambda x: x.margin_votes, reverse=True)
     return rankings
+

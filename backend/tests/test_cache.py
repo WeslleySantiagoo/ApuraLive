@@ -50,3 +50,4 @@ async def test_cache_single_flight_concurrency():
     assert all(r == "data-1" for r in results)
     # fetch was called exactly once despite 10 simultaneous requests
     assert counter == 1
+

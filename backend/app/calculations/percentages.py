@@ -14,3 +14,4 @@ def calculate_vote_margin(leader_votes: int, runner_up_votes: int) -> int:
 
 def calculate_percentage_point_margin(leader_pct: float, runner_up_pct: float, decimals: int = 2) -> float:
     return round(leader_pct - runner_up_pct, decimals)
+

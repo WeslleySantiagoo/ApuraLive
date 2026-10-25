@@ -21,7 +21,7 @@ export default function App() {
   const isWaitingPublication = data?.status === 'waiting_publication'
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-red-500 selection:text-white">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-zinc-200 selection:text-zinc-950">
       {/* Sticky Header */}
       <Header
         status={data?.status || (error ? 'unavailable' : 'loading')}
@@ -36,15 +36,15 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 space-y-8">
         {/* Error notification if any */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3 text-red-400 text-xs">
-            <AlertCircle className="w-5 h-5 shrink-0" />
+          <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 flex items-center gap-3 text-zinc-300 text-xs">
+            <AlertCircle className="w-5 h-5 text-zinc-400 shrink-0" />
             <div className="flex-1">
-              <strong className="font-semibold block">Aviso de Conexão com o TSE</strong>
+              <strong className="font-semibold block text-zinc-100">Aviso de Conexão com o TSE</strong>
               <span>{error}</span>
             </div>
             <button
               onClick={refetch}
-              className="px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded font-medium transition"
+              className="px-3 py-1 bg-zinc-100 hover:bg-white text-zinc-950 rounded font-semibold transition"
             >
               Reconectar
             </button>
@@ -53,18 +53,18 @@ export default function App() {
 
         {/* State: Waiting official dissemination from TSE */}
         {isWaitingPublication && (
-          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/20">
+          <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-8 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-zinc-800 text-zinc-300 flex items-center justify-center mx-auto border border-zinc-700">
               <Clock className="w-6 h-6 animate-pulse" />
             </div>
-            <h2 className="text-lg font-bold text-white">
+            <h2 className="text-lg font-bold text-zinc-100">
               Aguardando Publicação Oficial dos Dados pelo TSE
             </h2>
-            <p className="text-xs text-slate-400 max-w-lg mx-auto leading-relaxed">
-              Os arquivos de apuração presidencial de 2026 ainda não foram disponibilizados na CDN do Tribunal Superior Eleitoral. A sincronização em tempo real entrará em ação automaticamente assim que o TSE abrir a contagem.
+            <p className="text-xs text-zinc-400 max-w-lg mx-auto leading-relaxed">
+              Os arquivos de apuração presidencial de 2026 ainda não foram disponibilizados na CDN do Tribunal Superior Eleitoral. A sincronização entrará em ação automaticamente assim que o TSE abrir a contagem.
             </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 text-xs border border-slate-700">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-800 text-zinc-300 text-xs border border-zinc-700">
+              <span className="w-2 h-2 rounded-full bg-zinc-300 animate-ping"></span>
               Escuta ativa automática a cada 5 segundos
             </div>
           </div>
@@ -107,11 +107,11 @@ export default function App() {
         <section aria-label="Mapa Eleitoral Interativo" className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <MapIcon className="w-5 h-5 text-red-500" />
-              <h2 className="text-base font-bold text-white">Mapa Eleitoral Interativo</h2>
+              <MapIcon className="w-5 h-5 text-zinc-400" />
+              <h2 className="text-base font-bold text-zinc-100">Mapa Eleitoral Interativo</h2>
             </div>
             {selectedState && (
-              <span className="text-xs bg-slate-800 px-3 py-1 rounded-full border border-slate-700 text-slate-200">
+              <span className="text-xs bg-zinc-800 px-3 py-1 rounded-full border border-zinc-700 text-zinc-200">
                 Estado focado: <strong className="text-white">{selectedState}</strong>
               </span>
             )}
@@ -139,8 +139,8 @@ export default function App() {
         </section>
 
         {/* Editorial Disclaimer Box */}
-        <section className="bg-slate-900/30 border border-slate-800/60 rounded-xl p-4 flex items-start gap-3 text-xs text-slate-400">
-          <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+        <section className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-4 flex items-start gap-3 text-xs text-zinc-400">
+          <Info className="w-4 h-4 text-zinc-500 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
             As análises de garantia matemática calculada apresentadas no ApuraLive são computadas a partir do teto estrito de votos restantes das seções ainda não totalizadas. A proclamação oficial do resultado e a diplomação dos eleitos são atribuições constitucionais exclusivas da Justiça Eleitoral.
           </p>
@@ -148,16 +148,16 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-900/50 px-6 py-6 text-center text-xs text-slate-400 space-y-2">
+      <footer className="border-t border-zinc-800/80 bg-zinc-950 px-6 py-6 text-center text-xs text-zinc-500 space-y-2">
         <p>
           <strong>ApuraLive</strong> — Projeto independente sem associação oficial com o Tribunal Superior Eleitoral (TSE).
         </p>
-        <div className="flex items-center justify-center gap-4 text-[11px] text-slate-500">
+        <div className="flex items-center justify-center gap-4 text-[11px] text-zinc-500">
           <span>Dados Oficiais: TSE</span>
           <span>•</span>
           <button
             onClick={() => setIsTransparencyOpen(true)}
-            className="hover:text-slate-300 underline"
+            className="hover:text-zinc-300 underline"
           >
             Metodologia e Fórmulas
           </button>

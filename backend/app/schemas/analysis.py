@@ -27,3 +27,4 @@ class RankingItem(BaseModel):
     margin_votes: int
     total_valid_votes: int
     sections_counted_percentage: float
+

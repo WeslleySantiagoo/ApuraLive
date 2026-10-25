@@ -22,3 +22,4 @@ class ElectionConfig(BaseModel):
     code: str = "ele2026"
     status: str = "scheduled"  # scheduled, counting, finished
     candidates: List[CandidateInfo] = Field(default_factory=list)
+

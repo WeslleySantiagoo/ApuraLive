@@ -59,3 +59,4 @@ def test_irreversibility_first_round():
     )
     assert res.is_mathematically_irreversible is True
     assert res.leader_candidate_name == "Candidato A"
+
