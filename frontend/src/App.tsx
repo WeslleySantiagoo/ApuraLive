@@ -21,12 +21,13 @@ export default function App() {
   const [selectedState, setSelectedState] = useState<string | null>(null)
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
 
-  // Polling for state results so map stays up-to-date automatically
+  // Polling for state results
   useEffect(() => {
+    let isSubscribed = true
     const loadStates = () => {
       fetchStateResults()
         .then((res) => {
-          if (res && res.length > 0) setStatesData(res)
+          if (isSubscribed && res && res.length > 0) setStatesData(res)
         })
         .catch(() => {})
     }
@@ -38,7 +39,10 @@ export default function App() {
       }
     }, 10000)
 
-    return () => clearInterval(interval)
+    return () => {
+      isSubscribed = false
+      clearInterval(interval)
+    }
   }, [])
 
   const isWaitingPublication = data?.status === 'waiting_publication'
@@ -93,7 +97,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Live Scoreboard */}
+        {/* 1. Live Scoreboard */}
         <section aria-label="Placar Nacional">
           <NationalScoreboard
             candidates={data?.candidates || []}
@@ -101,7 +105,7 @@ export default function App() {
           />
         </section>
 
-        {/* Sections Progress */}
+        {/* 2. Sections Progress */}
         <section aria-label="Progresso da Totalização">
           <SectionsProgressBar
             sections={data?.sections || { total: 0, counted: 0, percentage: 0 }}
@@ -109,24 +113,15 @@ export default function App() {
           />
         </section>
 
-        {/* Irreversibility Mathematical Assessment */}
-        <section aria-label="Análise Matemática">
+        {/* 3. Irreversibility Assessment (Amigável & Centrada no Líder) */}
+        <section aria-label="Análise de Vitória Garantida">
           <IrreversibilityCard
             assessment={irreversibility}
-            remainingValidEstimate={data?.remaining_valid_votes_estimate || 0}
-          />
-        </section>
-
-        {/* Scenario Simulator */}
-        <section aria-label="Simulador de Cenários">
-          <ScenarioSimulator
             candidates={data?.candidates || []}
-            currentValidVotes={data?.total_valid_votes || 0}
-            remainingValidVotes={data?.remaining_valid_votes_estimate || 0}
           />
         </section>
 
-        {/* Map & Geographic Exploration */}
+        {/* 4. Map & Geographic Exploration */}
         <section aria-label="Mapa Eleitoral Interativo" className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -152,12 +147,21 @@ export default function App() {
           />
         </section>
 
-        {/* State Rankings */}
+        {/* 5. State Rankings */}
         <section aria-label="Rankings">
           <StateRankings />
         </section>
 
-        {/* Export and Sharing Dialog */}
+        {/* 6. Simulador de Cenários (posicionado como última seção antes da exportação) */}
+        <section aria-label="Simulador de Cenários">
+          <ScenarioSimulator
+            candidates={data?.candidates || []}
+            currentValidVotes={data?.total_valid_votes || 0}
+            remainingValidVotes={data?.remaining_valid_votes_estimate || 0}
+          />
+        </section>
+
+        {/* 7. Export and Sharing Dialog */}
         <section aria-label="Exportação">
           <ExportDialog data={data} />
         </section>

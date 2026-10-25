@@ -43,7 +43,8 @@ export interface IrreversibilityResponse {
   leader_candidate_name?: string | null
   vote_difference: number
   remaining_valid_votes_upper_bound: number
-  threshold_needed: number
+  votes_needed_to_win: number
+  target_threshold: number
   summary_text: string
   assessed_at: string
 }

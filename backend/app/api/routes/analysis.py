@@ -3,7 +3,6 @@ from fastapi import APIRouter
 from typing import List
 
 from app.calculations.irreversibility import evaluate_irreversibility
-from app.calculations.percentages import safe_percentage
 from app.schemas.analysis import IrreversibilityResponse, RankingItem
 from app.services.geography_service import STATE_NAMES, get_region_for_state
 from app.services.results_service import results_service
@@ -34,7 +33,8 @@ async def get_irreversibility_analysis():
         leader_candidate_name=assessment.leader_candidate_name,
         vote_difference=assessment.vote_difference,
         remaining_valid_votes_upper_bound=assessment.remaining_valid_votes_upper_bound,
-        threshold_needed=assessment.threshold_needed,
+        votes_needed_to_win=assessment.votes_needed_to_win,
+        target_threshold=assessment.target_threshold,
         summary_text=assessment.summary_text,
         assessed_at=datetime.now(timezone.utc).isoformat(),
     )
@@ -72,4 +72,3 @@ async def get_state_rankings():
 
     rankings.sort(key=lambda x: x.margin_votes, reverse=True)
     return rankings
-

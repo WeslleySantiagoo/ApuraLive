@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, memo } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { MapPin, ZoomIn, ZoomOut, RotateCcw, X, Eye, CheckCircle2 } from 'lucide-react'
@@ -11,7 +11,7 @@ interface ResultsMapProps {
   selectedState?: string | null
 }
 
-export function ResultsMap({ statesResults = [], onSelectState }: ResultsMapProps) {
+export const ResultsMap = memo(function ResultsMap({ statesResults = [], onSelectState }: ResultsMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<maplibregl.Map | null>(null)
   const isLoadedRef = useRef(false)
@@ -21,6 +21,7 @@ export function ResultsMap({ statesResults = [], onSelectState }: ResultsMapProp
 
   // Map state colors and results map by UF
   const statesMap = useRef<Map<string, NormalizedElectionResult>>(new Map())
+  const lastColorKey = useRef<string>('')
 
   useEffect(() => {
     const newMap = new Map<string, NormalizedElectionResult>()
@@ -30,14 +31,14 @@ export function ResultsMap({ statesResults = [], onSelectState }: ResultsMapProp
     statesMap.current = newMap
   }, [statesResults])
 
-  // Function to apply colors dynamically to MapLibre fill layer without resetting camera
+  // Seamlessly update map colors without recreating or resetting the canvas
   const updateMapColors = useCallback(() => {
     if (!map.current || !isLoadedRef.current) return
     const currentMap = map.current
     if (!currentMap.getLayer('states-fill')) return
 
-    // Build MapLibre match expression for fill-color based on leading candidate
-    // ['match', ['get', 'sigla'], 'SP', '#2563EB', 'BA', '#E53935', '#18181b']
+    // Build unique signature of current state leaders to prevent redundant paint repaints
+    let signature = ''
     const colorMatch: any[] = ['match', ['get', 'sigla']]
 
     statesMap.current.forEach((res, uf) => {
@@ -47,25 +48,29 @@ export function ResultsMap({ statesResults = [], onSelectState }: ResultsMapProp
         const isBolsonaro = leader.number === '22' || leader.name.toUpperCase().includes('BOLSONARO')
         const color = isLula ? '#E53935' : isBolsonaro ? '#2563EB' : leader.color || '#71717A'
         colorMatch.push(uf, color)
+        signature += `${uf}:${color};`
       } else {
         colorMatch.push(uf, '#18181b')
+        signature += `${uf}:none;`
       }
     })
 
-    // Default fallback color
     colorMatch.push('#18181b')
+    signature += `hc:${highContrast}`
 
-    // Apply color expression without touching camera/zoom/pan
+    // Only update paint property if the actual colors changed! This prevents the map from flickering!
+    if (signature === lastColorKey.current) return
+    lastColorKey.current = signature
+
     currentMap.setPaintProperty('states-fill', 'fill-color', colorMatch)
     currentMap.setPaintProperty('states-fill', 'fill-opacity', highContrast ? 0.95 : 0.8)
   }, [highContrast])
 
-  // When statesResults updates, seamlessly update map colors without resetting view
   useEffect(() => {
     updateMapColors()
   }, [statesResults, updateMapColors])
 
-  // Initialize MapLibre ONCE on mount
+  // Initialize MapLibre EXACTLY ONCE on component mount
   useEffect(() => {
     if (!mapContainer.current || map.current) return
 
@@ -125,7 +130,6 @@ export function ResultsMap({ statesResults = [], onSelectState }: ResultsMapProp
             },
           })
 
-          // Hover handler
           mapInstance.on('mousemove', 'states-fill', (e) => {
             if (e.features && e.features.length > 0) {
               const feat = e.features[0]
@@ -149,7 +153,6 @@ export function ResultsMap({ statesResults = [], onSelectState }: ResultsMapProp
             mapInstance.getCanvas().style.cursor = ''
           })
 
-          // Click handler to open detailed state modal popup
           mapInstance.on('click', 'states-fill', (e) => {
             if (e.features && e.features.length > 0) {
               const uf = (e.features[0].properties?.sigla || '').toUpperCase()
@@ -172,7 +175,6 @@ export function ResultsMap({ statesResults = [], onSelectState }: ResultsMapProp
             }
           })
 
-          // Apply initial colors once layer is ready
           updateMapColors()
         }
       } catch (err) {
@@ -185,7 +187,8 @@ export function ResultsMap({ statesResults = [], onSelectState }: ResultsMapProp
       map.current = null
       isLoadedRef.current = false
     }
-  }, [updateMapColors, onSelectState])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Never re-initialize map on prop updates!
 
   const handleZoomIn = () => map.current?.zoomIn()
   const handleZoomOut = () => map.current?.zoomOut()
@@ -237,9 +240,6 @@ export function ResultsMap({ statesResults = [], onSelectState }: ResultsMapProp
       <div className="absolute bottom-4 left-4 z-10 bg-zinc-900/95 backdrop-blur p-3.5 rounded-xl border border-zinc-800 shadow-xl text-xs space-y-2">
         <div className="flex items-center justify-between gap-4">
           <span className="font-semibold text-zinc-200">Liderança por Estado</span>
-          <span className="text-[10px] text-zinc-400 border border-zinc-700/60 px-1.5 py-0.5 rounded">
-            Atualização Contínua
-          </span>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
@@ -414,4 +414,4 @@ export function ResultsMap({ statesResults = [], onSelectState }: ResultsMapProp
       )}
     </div>
   )
-}
+})

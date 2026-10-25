@@ -10,7 +10,8 @@ class IrreversibilityAssessment:
     leader_candidate_name: Optional[str]
     vote_difference: int
     remaining_valid_votes_upper_bound: int
-    threshold_needed: float
+    votes_needed_to_win: int  # Quantos votos faltam para o líder garantir a vitória matemática
+    target_threshold: int     # Patamar de votos que garante matematicamente a vitória
     summary_text: str
 
 
@@ -20,17 +21,15 @@ def evaluate_irreversibility(
     candidate_votes: List[Tuple[str, str, int]],  # (id, name, votes) sorted descending
     remaining_valid_votes_upper_bound: int,
 ) -> IrreversibilityAssessment:
-    """Evaluates whether the election result is mathematically irreversible.
+    """Avaliação de garantia matemática com foco no líder.
 
-    2nd Round:
-      D = V_A - V_B
-      Condition: D > R
-      Where R is the strict upper bound of remaining valid votes from uncounted sections.
-      If D == R, a tie is mathematically possible, hence D > R is strictly required.
-
-    1st Round:
-      Leader must have strictly more than half of maximum possible final valid votes:
-      V_A > (V_counted_valid + R) / 2
+    2º Turno:
+      Condição de vitória matemática: D > R, ou seja, V_A - V_B > R.
+      O número mínimo de votos que o líder A precisa ter para garantir a vitória é:
+      T = floor((V_A + V_B + R) / 2) + 1.
+      Portanto, os votos que faltam para o líder garantir matematicamente a vitória são:
+      Faltam = max(0, T - V_A) = max(0, ceil((R - D + 1) / 2)).
+      Quando Faltam == 0, a vitória está matematicamente assegurada!
     """
     if not candidate_votes:
         return IrreversibilityAssessment(
@@ -40,8 +39,9 @@ def evaluate_irreversibility(
             leader_candidate_name=None,
             vote_difference=0,
             remaining_valid_votes_upper_bound=remaining_valid_votes_upper_bound,
-            threshold_needed=0.0,
-            summary_text="Sem votos computados no momento.",
+            votes_needed_to_win=0,
+            target_threshold=0,
+            summary_text="Aguardando contagem de votos.",
         )
 
     leader_id, leader_name, leader_votes = candidate_votes[0]
@@ -51,21 +51,22 @@ def evaluate_irreversibility(
 
     if round_type == 2:
         is_won = diff > r
+
+        # Votos que faltam para o líder atingir a barreira de irreversibilidade
         if is_won:
+            votes_needed = 0
+            target_threshold = leader_votes
             summary = (
-                f"Matematicamente definido: {leader_name} possui vantagem de {diff:,} votos, "
-                f"superior ao teto de votos válidos restantes ({r:,})."
+                f"{leader_name} já atingiu a marca matemática de vitória irreversível! "
+                f"A vantagem atual é de {diff:,} votos, superior aos {r:,} votos ainda por apurar."
             )
-        elif diff == r and r > 0:
-            summary = (
-                f"Disputa em aberto: vantagem ({diff:,}) é exatamente igual aos votos restantes ({r:,}), "
-                f"permitindo empate em caso de 100% dos votos pendentes ao 2º colocado."
-            )
-        elif r == 0:
-            summary = f"Apuração 100% concluída. {leader_name} eleito com vantagem de {diff:,} votos."
         else:
+            # Fórmula exata: para V_A + x - (V_B + (R - x)) > 0  =>  2x > R - (V_A - V_B)  =>  x >= floor((R - diff) / 2) + 1
+            votes_needed = max(1, ((r - diff) // 2) + 1)
+            target_threshold = leader_votes + votes_needed
             summary = (
-                f"Disputa em aberto: diferença ({diff:,}) é inferior aos votos restantes possíveis ({r:,})."
+                f"{leader_name} está na liderança. Faltam {votes_needed:,} votos "
+                f"para alcançar a vitória matematicamente garantida."
             )
 
         return IrreversibilityAssessment(
@@ -75,39 +76,30 @@ def evaluate_irreversibility(
             leader_candidate_name=leader_name,
             vote_difference=diff,
             remaining_valid_votes_upper_bound=r,
-            threshold_needed=float(r),
+            votes_needed_to_win=votes_needed,
+            target_threshold=target_threshold,
             summary_text=summary,
         )
     else:
         # 1st round
-        total_possible_valid = counted_valid_votes + r
-        threshold = total_possible_valid / 2.0
-        is_won_first_round = leader_votes > threshold
+        total_possible = counted_valid_votes + r
+        target_threshold = (total_possible // 2) + 1
+        is_won = leader_votes >= target_threshold
+        votes_needed = max(0, target_threshold - leader_votes)
 
-        if is_won_first_round:
-            summary = (
-                f"Matematicamente definido no 1º turno: {leader_name} tem {leader_votes:,} votos, "
-                f"superando 50% do total máximo de votos válidos possíveis ({threshold:,.1f})."
-            )
-        elif r == 0:
-            if leader_votes > (counted_valid_votes / 2.0):
-                summary = f"Apuração concluída: {leader_name} venceu no 1º turno com mais de 50% dos votos válidos."
-            else:
-                summary = "Apuração concluída: nenhum candidato alcançou maioria absoluta; haverá 2º turno."
+        if is_won:
+            summary = f"{leader_name} atingiu a maioria absoluta matemática no 1º turno."
         else:
-            summary = (
-                f"1º Turno em aberto: líder possui {leader_votes:,} votos. "
-                f"Patamar de garantia matemática atual: {threshold:,.1f} votos."
-            )
+            summary = f"{leader_name} lidera. Faltam {votes_needed:,} votos para liquidar a disputa no 1º turno."
 
         return IrreversibilityAssessment(
-            is_mathematically_irreversible=is_won_first_round,
+            is_mathematically_irreversible=is_won,
             round_type=1,
             leader_candidate_id=leader_id,
             leader_candidate_name=leader_name,
             vote_difference=diff,
             remaining_valid_votes_upper_bound=r,
-            threshold_needed=threshold,
+            votes_needed_to_win=votes_needed,
+            target_threshold=target_threshold,
             summary_text=summary,
         )
-

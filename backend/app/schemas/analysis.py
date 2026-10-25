@@ -9,7 +9,8 @@ class IrreversibilityResponse(BaseModel):
     leader_candidate_name: Optional[str] = None
     vote_difference: int
     remaining_valid_votes_upper_bound: int
-    threshold_needed: float
+    votes_needed_to_win: int
+    target_threshold: int
     summary_text: str
     assessed_at: str
 
@@ -27,4 +28,3 @@ class RankingItem(BaseModel):
     margin_votes: int
     total_valid_votes: int
     sections_counted_percentage: float
-
