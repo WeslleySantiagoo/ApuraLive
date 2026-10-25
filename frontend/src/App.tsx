@@ -3,9 +3,11 @@ import { Header } from './components/layout/Header'
 import { NationalScoreboard } from './components/dashboard/NationalScoreboard'
 import { SectionsProgressBar } from './components/dashboard/SectionsProgressBar'
 import { IrreversibilityCard } from './components/dashboard/IrreversibilityCard'
+import { ScenarioSimulator } from './components/simulator/ScenarioSimulator'
 import { ResultsMap } from './components/maps/ResultsMap'
 import { RegionSelector } from './components/maps/RegionSelector'
 import { StateRankings } from './components/tables/StateRankings'
+import { ExportDialog } from './components/common/ExportDialog'
 import { TransparencyModal } from './components/common/TransparencyModal'
 import { useResults } from './hooks/useResults'
 import { AlertCircle, Clock, Info, Map as MapIcon } from 'lucide-react'
@@ -92,6 +94,15 @@ export default function App() {
           />
         </section>
 
+        {/* Scenario Simulator */}
+        <section aria-label="Simulador de Cenários">
+          <ScenarioSimulator
+            candidates={data?.candidates || []}
+            currentValidVotes={data?.total_valid_votes || 0}
+            remainingValidVotes={data?.remaining_valid_votes_estimate || 0}
+          />
+        </section>
+
         {/* Map & Geographic Exploration */}
         <section aria-label="Mapa Eleitoral Interativo" className="space-y-4">
           <div className="flex items-center justify-between">
@@ -120,6 +131,11 @@ export default function App() {
         {/* State Rankings */}
         <section aria-label="Rankings">
           <StateRankings />
+        </section>
+
+        {/* Export and Sharing Dialog */}
+        <section aria-label="Exportação">
+          <ExportDialog data={data} />
         </section>
 
         {/* Editorial Disclaimer Box */}
