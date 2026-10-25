@@ -3,6 +3,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 
+from app.api.routes.election import router as election_router
+from app.api.routes.results import router as results_router
+from app.api.routes.analysis import router as analysis_router
+
 app = FastAPI(
     title="ApuraLive API",
     description="API independente para acompanhamento em tempo real das eleições presidenciais com dados oficiais do TSE.",
@@ -16,6 +20,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(election_router)
+app.include_router(results_router)
+app.include_router(analysis_router)
 
 
 @app.get("/health", tags=["Health"])
@@ -38,4 +46,3 @@ async def get_metadata():
         "mode": "live",
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
-
