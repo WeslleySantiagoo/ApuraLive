@@ -12,7 +12,7 @@ interface UseResultsState {
   refetch: () => Promise<void>
 }
 
-export function useResults(pollIntervalMs: number = 6000): UseResultsState {
+export function useResults(pollIntervalMs: number = 5000): UseResultsState {
   const [data, setData] = useState<NormalizedElectionResult | null>(null)
   const [irreversibility, setIrreversibility] = useState<IrreversibilityResponse | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -28,8 +28,21 @@ export function useResults(pollIntervalMs: number = 6000): UseResultsState {
         fetchBrazilResults(),
         fetchIrreversibility().catch(() => null),
       ])
-      setData(resData)
-      if (irrevData) setIrreversibility(irrevData)
+
+      // Only overwrite state if the incoming data actually has candidates or sections counted
+      // This prevents the UI from blanking out if an intermediate response is transiently empty
+      if (resData && (resData.candidates.length > 0 || resData.sections.counted > 0)) {
+        setData(resData)
+      } else {
+        setData((prev) => prev || resData)
+      }
+
+      if (irrevData && (irrevData.leader_candidate_name || irrevData.vote_difference > 0)) {
+        setIrreversibility(irrevData)
+      } else {
+        setIrreversibility((prev) => prev || irrevData)
+      }
+
       setError(null)
       setLastSuccessTime(new Date())
     } catch (err: any) {
@@ -52,7 +65,6 @@ export function useResults(pollIntervalMs: number = 6000): UseResultsState {
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
     timerRef.current = setInterval(() => {
-      // Intelligent pause: do not poll if browser tab is inactive or hidden
       if (document.visibilityState === 'visible') {
         loadData()
       }
@@ -74,4 +86,3 @@ export function useResults(pollIntervalMs: number = 6000): UseResultsState {
     refetch: () => loadData(true),
   }
 }
-

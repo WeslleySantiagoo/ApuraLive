@@ -11,8 +11,10 @@ HEADERS = {
 class TSEClient:
     """Async HTTP client to interact strictly with official TSE dissemination endpoints.
 
-    Respects the rate limit (<100 req/s), uses sensible timeouts, ETags,
-    and handles HTTP 404 cleanly as unpublished files.
+    Caches the last successfully fetched content per URL so that when TSE returns 304 (Not Modified),
+    the cached content is preserved and returned rather than None!
+    In case of temporary network timeout or rate limits (429/503), returns the last valid response
+    to prevent UI flickering and data blanking.
     """
 
     def __init__(self, base_url: Optional[str] = None):
@@ -20,15 +22,12 @@ class TSEClient:
         self.client = httpx.AsyncClient(headers=HEADERS, timeout=10.0, follow_redirects=True)
         self._etags: Dict[str, str] = {}
         self._last_modified: Dict[str, str] = {}
+        self._last_valid_data: Dict[str, Dict[str, Any]] = {}
 
     async def close(self):
         await self.client.aclose()
 
     async def get_json(self, path: str) -> Optional[Dict[str, Any]]:
-        """Queries the official TSE endpoint for a specific path.
-
-        Returns None if HTTP 404 (file not yet published).
-        """
         clean_path = path.lstrip("/")
         url = f"{self.base_url}/{clean_path}"
 
@@ -42,12 +41,17 @@ class TSEClient:
             response = await self.client.get(url, headers=req_headers)
 
             if response.status_code == 304:
-                # Content not modified
-                return None
+                # 304 Not Modified: The file has not changed on TSE servers!
+                # Return the last valid data we saved for this URL
+                return self._last_valid_data.get(url)
 
             if response.status_code == 404:
-                # Official TSE guidance: 404 means the file has not yet been generated/published.
-                return None
+                # 404: not yet generated or not found
+                return self._last_valid_data.get(url)
+
+            if response.status_code in (429, 500, 502, 503, 504):
+                # Rate limit or temporary TSE CDN glitch: fallback to last valid data
+                return self._last_valid_data.get(url)
 
             response.raise_for_status()
 
@@ -56,10 +60,12 @@ class TSEClient:
             if "Last-Modified" in response.headers:
                 self._last_modified[url] = response.headers["Last-Modified"]
 
-            return response.json()
-        except httpx.HTTPError:
-            return None
+            data = response.json()
+            self._last_valid_data[url] = data
+            return data
+        except Exception:
+            # Fallback to last valid cached data on any network or parsing glitch
+            return self._last_valid_data.get(url)
 
 
 tse_client = TSEClient()
-
