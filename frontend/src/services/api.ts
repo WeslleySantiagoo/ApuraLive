@@ -1,6 +1,9 @@
 import { NormalizedElectionResult, IrreversibilityResponse } from '../types/results'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const rawApiUrl = import.meta.env.VITE_API_URL
+export const API_BASE_URL = rawApiUrl
+  ? rawApiUrl.replace(/\/$/, '')
+  : (import.meta.env.DEV ? 'http://localhost:8000' : '')
 
 export async function fetchBrazilResults(): Promise<NormalizedElectionResult> {
   const res = await fetch(`${API_BASE_URL}/api/v1/results/brazil`)
