@@ -3,7 +3,7 @@ import { NormalizedElectionResult, IrreversibilityResponse } from '../types/resu
 const rawApiUrl = import.meta.env.VITE_API_URL
 export const API_BASE_URL = rawApiUrl
   ? rawApiUrl.replace(/\/$/, '')
-  : (import.meta.env.DEV ? 'http://localhost:8000' : '')
+  : (import.meta.env.DEV ? 'http://localhost:8000' : 'https://apuralive.onrender.com')
 
 export async function fetchBrazilResults(): Promise<NormalizedElectionResult> {
   const res = await fetch(`${API_BASE_URL}/api/v1/results/brazil`)
