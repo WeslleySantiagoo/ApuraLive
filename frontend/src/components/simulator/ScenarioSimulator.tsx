@@ -101,7 +101,7 @@ export function ScenarioSimulator({
           style={{ borderLeftColor: cand1Color }}
         >
           <div className="flex items-center gap-2.5">
-            <img src={cand1Photo} alt={cand1.name} className="w-8 h-8 rounded-full object-cover border border-zinc-700" />
+            <img src={cand1Photo} alt={cand1.name} className="w-8 h-8 rounded-full object-cover object-top border border-zinc-700" />
             <span className="text-[12px] font-semibold text-zinc-200 block">{cand1.name} (Projeção)</span>
           </div>
           <div className="flex items-baseline justify-between">
@@ -117,7 +117,7 @@ export function ScenarioSimulator({
           style={{ borderLeftColor: cand2Color }}
         >
           <div className="flex items-center gap-2.5">
-            <img src={cand2Photo} alt={cand2.name} className="w-8 h-8 rounded-full object-cover border border-zinc-700" />
+            <img src={cand2Photo} alt={cand2.name} className="w-8 h-8 rounded-full object-cover object-top border border-zinc-700" />
             <span className="text-[12px] font-semibold text-zinc-200 block">{cand2.name} (Projeção)</span>
           </div>
           <div className="flex items-baseline justify-between">

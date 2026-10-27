@@ -201,7 +201,7 @@ export function RegionSelector({ onSelectRegion, selectedRegion }: RegionSelecto
                           <img
                             src={photo}
                             alt={cand.name}
-                            className="w-10 h-10 rounded-lg object-cover border border-zinc-700 shrink-0"
+                            className="w-10 h-10 rounded-lg object-cover object-top border border-zinc-700 shrink-0"
                           />
                         )}
                         <div>

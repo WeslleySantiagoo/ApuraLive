@@ -40,7 +40,7 @@ export function IrreversibilityCard({
             <img
               src={leaderPhoto}
               alt={leaderName}
-              className="w-14 h-14 rounded-2xl object-cover border-2 shadow-md shrink-0"
+              className="w-14 h-14 rounded-2xl object-cover object-top border-2 shadow-md shrink-0"
               style={{ borderColor: leaderColor }}
             />
           ) : (

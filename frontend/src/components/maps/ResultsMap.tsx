@@ -618,7 +618,7 @@ export const ResultsMap = memo(function ResultsMap({ statesResults = [], onSelec
               <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg overflow-hidden border shrink-0 bg-zinc-900 border-[#E53935]">
-                    <img src="/candidates/lula.jpg" alt="Lula" className="w-full h-full object-cover" />
+                    <img src="/candidates/lula.jpg" alt="Lula" className="w-full h-full object-cover object-top" />
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
@@ -646,7 +646,7 @@ export const ResultsMap = memo(function ResultsMap({ statesResults = [], onSelec
                     <img
                       src="/candidates/flavio-bolsonaro.jpg"
                       alt="Flávio Bolsonaro"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-top"
                     />
                   </div>
                   <div>
@@ -749,7 +749,7 @@ export const ResultsMap = memo(function ResultsMap({ statesResults = [], onSelec
                           style={{ borderColor: color }}
                         >
                           {photo ? (
-                            <img src={photo} alt={cand.name} className="w-full h-full object-cover" />
+                            <img src={photo} alt={cand.name} className="w-full h-full object-cover object-top" />
                           ) : (
                             <div
                               className="w-full h-full flex items-center justify-center font-bold text-xs"
