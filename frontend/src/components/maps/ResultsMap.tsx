@@ -4,7 +4,6 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { MapPin, ZoomIn, ZoomOut, RotateCcw, X, Eye, CheckCircle2, Layers } from 'lucide-react'
 import { formatNumber, formatPercentage } from '../../utils/formatters'
 import { NormalizedElectionResult } from '../../types/results'
-import { getDivergingColor } from '../../utils/colors'
 import { getMunicipalResult, MunicipalResultData } from '../../utils/municipalityData'
 import { getVisibleUfs } from '../../utils/geoBounds'
 
@@ -41,7 +40,7 @@ export const ResultsMap = memo(function ResultsMap({ statesResults = [], onSelec
     statesMap.current = newMap
   }, [statesResults])
 
-  // Update State Colors with the new Diverging Color Scale (Red <-> Gray <-> Blue)
+  // Update State Colors: 100% pure intense color for the leading candidate
   const updateStateColors = useCallback(() => {
     if (!map.current || !isLoadedRef.current) return
     const currentMap = map.current
@@ -51,22 +50,17 @@ export const ResultsMap = memo(function ResultsMap({ statesResults = [], onSelec
     const colorMatch: any[] = ['match', ['get', 'sigla']]
 
     statesMap.current.forEach((res, uf) => {
-      let lulaPct = 0
-      let bolsonaroPct = 0
-      const hasVotes = res.candidates && res.candidates.length > 0 && res.total_valid_votes > 0
-
-      if (hasVotes) {
-        res.candidates.forEach((c) => {
-          const isLula = c.number === '13' || c.name.toUpperCase().includes('LULA')
-          const isBolsonaro = c.number === '22' || c.name.toUpperCase().includes('BOLSONARO')
-          if (isLula) lulaPct = c.percentage
-          if (isBolsonaro) bolsonaroPct = c.percentage
-        })
+      if (res.candidates && res.candidates.length > 0 && res.candidates[0].votes > 0) {
+        const leader = res.candidates[0]
+        const isLula = leader.number === '13' || leader.name.toUpperCase().includes('LULA')
+        const isBolsonaro = leader.number === '22' || leader.name.toUpperCase().includes('BOLSONARO')
+        const color = isLula ? '#E53935' : isBolsonaro ? '#2563EB' : leader.color || '#71717A'
+        colorMatch.push(uf, color)
+        signature += `${uf}:${color};`
+      } else {
+        colorMatch.push(uf, '#18181b')
+        signature += `${uf}:none;`
       }
-
-      const color = getDivergingColor(lulaPct, bolsonaroPct, !!hasVotes)
-      colorMatch.push(uf, color)
-      signature += `${uf}:${color};`
     })
 
     colorMatch.push('#18181b')
@@ -76,7 +70,7 @@ export const ResultsMap = memo(function ResultsMap({ statesResults = [], onSelec
     lastStateColorKey.current = signature
 
     currentMap.setPaintProperty('states-fill', 'fill-color', colorMatch)
-    currentMap.setPaintProperty('states-fill', 'fill-opacity', highContrast ? 0.95 : 0.82)
+    currentMap.setPaintProperty('states-fill', 'fill-opacity', highContrast ? 0.95 : 0.85)
   }, [highContrast])
 
   // Refresh colors on state data changes
@@ -406,11 +400,8 @@ export const ResultsMap = memo(function ResultsMap({ statesResults = [], onSelec
         <Layers className="w-4 h-4 text-zinc-400" />
         <span>Divisão: </span>
         <strong className={isMunicipalView ? 'text-blue-400' : 'text-zinc-100'}>
-          {isMunicipalView ? 'Municipal (Cidades)' : 'Estadual (UFs)'}
+          {isMunicipalView ? 'Cidades' : 'Estados'}
         </strong>
-        <span className="text-[10px] text-zinc-500 font-mono ml-1">
-          {isMunicipalView ? '(Zoom Alto)' : '(Aproxime para cidades)'}
-        </span>
       </div>
 
       {/* Floating Toolbar Controls */}
@@ -447,42 +438,43 @@ export const ResultsMap = memo(function ResultsMap({ statesResults = [], onSelec
         </button>
       </div>
 
-      {/* Floating Legend: Escala Tricolor Divergente */}
-      <div className="absolute bottom-4 left-4 z-10 bg-zinc-900/95 backdrop-blur p-3.5 rounded-xl border border-zinc-800 shadow-xl text-xs space-y-2">
+      {/* Floating Legend */}
+      <div className="absolute bottom-4 left-4 z-10 bg-zinc-900/95 backdrop-blur p-3.5 rounded-xl border border-zinc-800 shadow-xl text-xs space-y-2.5">
         <div className="flex items-center justify-between gap-4">
           <span className="font-semibold text-zinc-200">
             {isMunicipalView ? 'Liderança por Município' : 'Liderança por Estado'}
           </span>
-          <span className="text-[11px] text-zinc-400">Escala de Intensidade</span>
         </div>
 
-        {/* Gradiente Divergente: Vermelho <-> Cinza <-> Azul */}
-        <div className="space-y-1">
-          <div
-            className="w-full h-3 rounded-md shadow-inner border border-zinc-700/60"
-            style={{
-              background: 'linear-gradient(to right, #E53935 0%, #3f3f46 50%, #2563EB 100%)',
-            }}
-          />
-          <div className="flex justify-between items-center text-[10px] text-zinc-400 font-mono">
-            <span className="text-red-400 font-semibold">Lula (+vantagem)</span>
-            <span className="text-zinc-300">50% Neutro</span>
-            <span className="text-blue-400 font-semibold">Flávio (+vantagem)</span>
+        {/* Gradiente Divergente visível na visualização por cidades */}
+        {isMunicipalView ? (
+          <div className="space-y-1">
+            <div
+              className="w-full h-3 rounded-md shadow-inner border border-zinc-700/60"
+              style={{
+                background: 'linear-gradient(to right, #E53935 0%, #3f3f46 50%, #2563EB 100%)',
+              }}
+            />
+            <div className="flex justify-between items-center text-[10px] text-zinc-400 font-mono">
+              <span className="text-red-400 font-semibold">Lula</span>
+              <span className="text-zinc-300">Empate</span>
+              <span className="text-blue-400 font-semibold">Flávio</span>
+            </div>
           </div>
-        </div>
+        ) : null}
 
-        <div className="flex items-center gap-3 pt-1 border-t border-zinc-800/80 text-[11px]">
+        <div className="flex items-center gap-3.5 text-[11px]">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#E53935]" />
-            <span className="text-zinc-300 font-medium">Lula (13)</span>
+            <span className="w-3 h-3 rounded-md bg-[#E53935]" />
+            <span className="text-zinc-300 font-medium">Lula</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#3f3f46]" />
-            <span className="text-zinc-400">Empate (50%)</span>
+            <span className="w-3 h-3 rounded-md bg-[#2563EB]" />
+            <span className="text-zinc-300 font-medium">Flávio Bolsonaro</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />
-            <span className="text-zinc-300 font-medium">Flávio (22)</span>
+            <span className="w-3 h-3 rounded-md bg-[#18181b] border border-zinc-700" />
+            <span className="text-zinc-400">Sem Apuração</span>
           </div>
         </div>
       </div>
