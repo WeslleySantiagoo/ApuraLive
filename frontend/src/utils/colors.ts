@@ -63,3 +63,4 @@ export function getDivergingColor(lulaPct: number, bolsonaroPct: number, hasVote
     return interpolateRgb(NEUTRAL_GRAY, BLUE_BOLSONARO, t)
   }
 }
+
