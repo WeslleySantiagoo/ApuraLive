@@ -19,3 +19,4 @@ export function LogoIcon({ className = 'w-5 h-5', color = 'currentColor' }: Logo
     </svg>
   )
 }
+
