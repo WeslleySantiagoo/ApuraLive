@@ -13,6 +13,7 @@ import { useResults } from './hooks/useResults'
 import { fetchStateResults } from './services/api'
 import { NormalizedElectionResult } from './types/results'
 import { AlertCircle, Clock, Info, Map as MapIcon } from 'lucide-react'
+import { LogoIcon } from './components/common/LogoIcon'
 
 export default function App() {
   const { data, irreversibility, isRefreshing, error, lastSuccessTime, refetch } = useResults(5000)
@@ -176,9 +177,15 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800/80 bg-zinc-950 px-6 py-6 text-center text-xs text-zinc-500 space-y-2">
+      <footer className="border-t border-zinc-800/80 bg-zinc-950 px-6 py-6 text-center text-xs text-zinc-500 space-y-3">
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-5 h-5 rounded-md bg-zinc-900 border border-zinc-800 p-1 flex items-center justify-center">
+            <LogoIcon className="w-full h-full text-zinc-400" />
+          </div>
+          <span className="font-semibold text-zinc-300">ApuraLive</span>
+        </div>
         <p>
-          <strong>ApuraLive</strong> — Projeto independente sem associação oficial com o Tribunal Superior Eleitoral (TSE).
+          Projeto independente sem associação oficial com o Tribunal Superior Eleitoral (TSE).
         </p>
         <div className="flex items-center justify-center gap-4 text-[11px] text-zinc-500">
           <span>Dados Oficiais: TSE</span>

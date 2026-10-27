@@ -1,5 +1,6 @@
 import { Radio, RefreshCw, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react'
 import { formatDateTime } from '../../utils/formatters'
+import { LogoIcon } from '../common/LogoIcon'
 
 interface HeaderProps {
   status: 'available' | 'waiting_publication' | 'unavailable' | 'loading'
@@ -24,8 +25,8 @@ export function Header({
         {/* Brand */}
         <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
           <div className="flex items-center gap-3.5">
-            <div className="h-9 w-9 rounded-xl bg-zinc-900 border border-zinc-700/80 flex items-center justify-center font-bold text-zinc-100 text-lg shadow-sm">
-              A
+            <div className="h-9 w-9 rounded-xl bg-zinc-900 border border-zinc-700/80 flex items-center justify-center p-2 text-zinc-100 shadow-sm">
+              <LogoIcon className="w-full h-full text-zinc-100" />
             </div>
             <div>
               <div className="flex items-center gap-2">

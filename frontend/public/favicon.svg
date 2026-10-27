@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="8" fill="#18181B"/>
-  <path d="M16 6L7 24h4.5l2.2-4.8h6.6L22.5 24H27L16 6zm0 6.5l2.4 5.2h-4.8L16 12.5z" fill="#F4F4F5"/>
+  <!-- ApuraLive Chevron / Chevron Logo -->
+  <polygon points="16,6.5 26.5,17.5 22.5,21.0 16,10.0 9.5,21.0 5.5,17.5" fill="#F4F4F5"/>
 </svg>
