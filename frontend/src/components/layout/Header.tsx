@@ -54,20 +54,25 @@ export function Header({
         <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto text-xs">
           {/* Status Badge */}
           <div className="flex items-center gap-2 bg-zinc-900/90 px-3.5 py-1.5 rounded-lg border border-zinc-800">
-            {status === 'available' ? (
-              <>
-                <CheckCircle2 className="w-3.5 h-3.5 text-zinc-200" />
-                <span className="text-zinc-200 font-medium">Dados Oficiais Conectados</span>
-              </>
-            ) : status === 'waiting_publication' ? (
+            {status === 'waiting_publication' ? (
               <>
                 <AlertCircle className="w-3.5 h-3.5 text-zinc-400 animate-pulse" />
                 <span className="text-zinc-300 font-medium">Aguardando Publicação TSE</span>
               </>
-            ) : (
+            ) : status === 'unavailable' ? (
+              <>
+                <AlertCircle className="w-3.5 h-3.5 text-zinc-400" />
+                <span className="text-zinc-400 font-medium">Indisponível</span>
+              </>
+            ) : status === 'loading' ? (
               <>
                 <Radio className="w-3.5 h-3.5 text-zinc-500 animate-pulse" />
                 <span className="text-zinc-400 font-medium">Sincronizando...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5 text-zinc-200" />
+                <span className="text-zinc-200 font-medium">Conectado</span>
               </>
             )}
           </div>
