@@ -1,4 +1,4 @@
-import { Radio, RefreshCw, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react'
+import { Radio, RefreshCw, AlertCircle, ShieldCheck } from 'lucide-react'
 import { formatDateTime } from '../../utils/formatters'
 import { LogoIcon } from '../common/LogoIcon'
 
