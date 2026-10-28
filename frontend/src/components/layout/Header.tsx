@@ -71,8 +71,8 @@ export function Header({
               </>
             ) : (
               <>
-                <CheckCircle2 className="w-3.5 h-3.5 text-zinc-200" />
-                <span className="text-zinc-200 font-medium">Conectado</span>
+                {/* <CheckCircle2 className="w-3.5 h-3.5 text-zinc-200" />
+                <span className="text-zinc-200 font-medium">Conectado</span> */}
               </>
             )}
           </div>
