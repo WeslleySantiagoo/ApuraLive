@@ -25,51 +25,32 @@
 
 ---
 
-## ✨ Funcionalidades Principais
+## ⚡ Todas as Features da Plataforma
 
-### 1. Placar Nacional em Tempo Real
-- **Dados Oficiais**: Totalização de seções, votos válidos, brancos, nulos e abstenção diretamente da CDN oficial do TSE.
-- **Identificação Visual**: Cores de referência oficial (**Vermelho `#E53935` para Lula** e **Azul `#2563EB` para Flávio Bolsonaro**) com enquadramento de fotos aperfeiçoado (`object-top`) e dados nominais atualizados.
-- **Diferença Dinâmica**: Margem em votos e em pontos percentuais calculada em tempo real.
-
-### 2. Análise Amigável de Irreversibilidade Matemática
-- Abstrai a complexidade jurídica e matemática para responder à pergunta essencial: **"Quantos votos faltam para o líder garantir a vitória matemática?"**
-- Baseada diretamente no candidato à frente, calculando a barreira matemática intransponível sobre o teto conservador das urnas ainda por apurar:
-  $$\text{Votos Necessários} = \max\left(1, \left\lfloor \frac{R - D}{2} \right\rfloor + 1\right)$$
-  *(Onde $D$ é a vantagem atual do líder e $R$ é o teto de votos válidos das seções pendentes)*.
-
-### 3. Mapa Eleitoral Multinível (Estados e Cidades) com Zero Flicker
-- **Zoom Adaptativo**:
-  - **Visão Geral (Estados)**: Exibe a federação com a cor 100% sólida do candidato vencedor de cada UF.
-  - **Visão Aproximada (Cidades)**: Ao dar zoom (`zoom >= 5.8`), o mapa transiciona de forma fluida para a divisão por **mais de 5.500 municípios**.
-- **Escala Divergente Tricolor (`Vermelho <-> Cinza <-> Azul`)**:
-  - No nível municipal, a coloração expressa a intensidade da liderança local: se ambos estiverem em 50%/empate, permanece no **cinza neutro** (`#3f3f46`); à medida que a vantagem cresce, a cor do líder ganha saturação e intensidade proporcional.
-- **Performance e Carregamento Sob Demanda**: Carrega os dados geográficos e de apuração apenas dos municípios que intersectam o viewport visível, sem travamento de transição.
-- **Interatividade Total (Hover e Modais)**:
-  - Passe o mouse sobre estados ou cidades para ver dados resumidos em tempo real.
-  - Clique em qualquer estado ou cidade para abrir o modal detalhado com barra de seções apuradas e contagem nominal de votos com fotos dos candidatos.
-- **Câmera Estável**: As atualizações automáticas de dados ocorrem de forma imperceptível, sem resetar a posição, zoom ou pan do usuário.
-
-### 4. Acompanhamento Regional com Barra de Progresso
-- Painel para as 5 macrorregiões brasileiras (*Norte, Nordeste, Centro-Oeste, Sudeste e Sul*).
-- Sidebar detalhada comparando visualmente as **Urnas Apuradas** versus **Urnas Faltantes** da região selecionada.
-
-### 5. Rankings Estaduais
-- Tabela com ordenação instantânea por **Maior Margem** ou por **Volume de Votos Válidos**, com busca interativa por estado ou sigla (UF).
-
-### 6. Simulador de Cenários Hipotéticos
-- Posicionado estrategicamente na seção inferior, permite ao usuário mover sliders para projetar como ficaria o placar final caso os votos restantes fossem distribuídos em determinada proporção.
-- Selo de integridade visível: *Simulação Hipotética — Não é Resultado Oficial*.
-
-### 7. Exportação e Compartilhamento
-- Exportação dos dados da apuração em tempo real nos formatos **JSON** e **CSV**.
-- Botão rápido para copiar resumo formatado pronto para redes sociais.
-
----
-
-## 🎨 Identidade Visual e Nova Logo
-
-O ApuraLive adota uma identidade visual moderna em **Dark Mode Neutro** (paleta Zinc / `#09090b` / `#18181b`) para assegurar máxima imparcialidade, elegância e legibilidade. A marca conta com o vetor geométrico exclusivo de chevron presente no Favicon, Cabeçalho e Rodapé.
+| Categoria | Feature | Descrição Detalhada |
+| :--- | :--- | :--- |
+| **Placar Nacional** | **Dados ao Vivo da CDN TSE** | Consulta direta aos arquivos oficiais EA14 e EA20 da eleição presidencial. |
+| **Placar Nacional** | **Fotos & Identificação Visual** | Cores oficiais dos candidatos (**Vermelho `#E53935` para Lula** e **Azul `#2563EB` para Flávio Bolsonaro**) com enquadramento de fotos aperfeiçoado (`object-top`). |
+| **Placar Nacional** | **Contagem e Percentuais Nominais** | Votos válidos, brancos, nulos, abstenções e seções totalizadas atualizados em tempo real. |
+| **Placar Nacional** | **Diferença Dinâmica** | Cálculo instantâneo da margem de liderança em votos absolutos e percentuais. |
+| **Análise Matemática** | **Irreversibilidade Amigável** | Cálculo objetivo focado no líder: exibe exatamente quantos votos faltam para garantir a vitória matemática. |
+| **Análise Matemática** | **Teto Estrito Conservador ($R$)** | Considera o limite superior de votos ainda possíveis nas urnas pendentes para garantir 100% de precisão. |
+| **Mapa Interativo** | **Visão Multinível por Zoom** | Transição automática entre visualização por **Estados (UFs)** e por **Municípios (5.564 cidades)** ao atingir o limiar de zoom (`zoom >= 5.8`). |
+| **Mapa Interativo** | **Cor Sólida por Estado** | No nível geral, os estados são pintados com a cor 100% intensa do líder local. |
+| **Mapa Interativo** | **Escala Divergente Tricolor (`Vermelho <-> Cinza <-> Azul`)** | No nível municipal, a intensidade da cor varia gradualmente conforme a vantagem percentual sobre o concorrente (com cinza neutro em caso de empate/50%). |
+| **Mapa Interativo** | **Zero Flicker & Câmera Preservada** | A atualização em segundo plano não recria o canvas nem reseta a posição, o zoom ou o pan do usuário. |
+| **Mapa Interativo** | **Carregamento Otimizado por Viewport** | Download dinâmico dos dados municipais apenas das UFs visíveis na tela, garantindo alta fluidez. |
+| **Mapa Interativo** | **Popups e Modais Detalhados** | Tooltip ao passar o mouse e modal completo ao clicar sobre qualquer estado ou cidade com fotos, progresso de urnas e votação nominal. |
+| **Mapa Interativo** | **Controles de Navegação** | Botões flutuantes para zoom in, zoom out, reset para a visualização do Brasil inteiro e alternância de alto contraste. |
+| **Regiões & Urnas** | **Acompanhamento Regional** | Totalização agregada para as 5 macrorregiões do país (*Norte, Nordeste, Centro-Oeste, Sudeste e Sul*). |
+| **Regiões & Urnas** | **Sidebar de Progresso das Urnas** | Exibe a barra de progresso visual comparando seções apuradas versus seções faltantes por região. |
+| **Tabelas & Filtros** | **Rankings Estaduais Interativos** | Classificação instantânea por maior margem percentual ou maior volume absoluto de votos, com busca por nome de estado ou sigla (UF). |
+| **Simulador** | **Cenários Hipotéticos** | Distribuição interativa dos votos válidos restantes via slider, simulando projeções finais de placar com badge explícito de simulação não-oficial. |
+| **Exportação** | **Exportação JSON e CSV** | Download dos dados consolidados em formatos estruturados para auditoria ou análises externas. |
+| **Exportação** | **Cópia para Redes Sociais** | Botão de compartilhamento rápido com resumo textual pronto para publicação. |
+| **Transparência** | **Modal de Metodologia e Auditoria** | Explicação jurídica da isenção editorial, detalhamento das fórmulas matemáticas e links diretos para a documentação técnica oficial do TSE. |
+| **Design & Branding** | **Nova Logo em Vetor** | Vetor geométrico chevron aplicado em todo o ecossistema: Favicon, Cabeçalho e Rodapé. |
+| **Design & Branding** | **Dark Mode Imparcial** | Paleta sofisticada baseada em tons neutros de zinco (`#09090b` / `#18181b`) que garante total neutralidade jornalística. |
 
 ---
 
