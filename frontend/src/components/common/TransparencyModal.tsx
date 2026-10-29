@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { X, ExternalLink, Calculator, Database, ShieldAlert } from 'lucide-react'
 
 interface TransparencyModalProps {
@@ -6,6 +7,16 @@ interface TransparencyModalProps {
 }
 
 export function TransparencyModal({ isOpen, onClose }: TransparencyModalProps) {
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = originalOverflow
+      }
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
 
   return (
