@@ -30,3 +30,31 @@ export function formatDateTime(isoString: string | undefined | null): string {
   }
 }
 
+/**
+ * Converte formatos de data/hora do TSE (ex: "25/10/2026T23:27:02" ou "2026-10-25T23:27:02")
+ * para um formato amigável ao usuário: "25/10/2026 às 23:27:02".
+ */
+export function formatTseDateTime(value: string | undefined | null): string {
+  if (!value) return '--'
+  // Se contiver 'T'
+  if (value.includes('T')) {
+    const [d, t] = value.split('T')
+    if (d && t) {
+      // Se a data já estiver em DD/MM/YYYY
+      if (d.includes('/')) {
+        return `${d} às ${t}`
+      }
+      // Se a data estiver em YYYY-MM-DD
+      if (d.includes('-')) {
+        const parts = d.split('-')
+        if (parts.length === 3) {
+          return `${parts[2]}/${parts[1]}/${parts[0]} às ${t}`
+        }
+      }
+      return `${d} às ${t}`
+    }
+  }
+  return value
+}
+
+
