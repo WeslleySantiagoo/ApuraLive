@@ -1,4 +1,4 @@
-# ApuraLive — A apuração, em tempo real.
+# ApuraLive - A apuração, em tempo real.
 
 <div align="center">
 
